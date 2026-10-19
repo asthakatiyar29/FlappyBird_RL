@@ -3,6 +3,8 @@ import gymnasium as gym
 from dqn import DQN
 import torch
 import torch.nn as nn
+from experience_replay import ReplayMemory
+
 
 
 if torch.backends.mps.is_available():
@@ -22,6 +24,9 @@ def run(self, is_training=True, render=False):
     
     state, _ = env.reset()
     
+    if is_training:
+        memory = ReplayMemory(10000)
+    
     while True:
         # Next action:
         # (feed the observation to your agent here)
@@ -29,6 +34,9 @@ def run(self, is_training=True, render=False):
         
         # Processing: terminated => done
         next_state, reward, done, _, _ = env.step(action)
+        
+        if is_training:
+            memory.append((state, action, new_state, reward, done))
         
         # Checking if the player is still alive
         if done:
