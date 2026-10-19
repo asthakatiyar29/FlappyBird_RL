@@ -4,7 +4,7 @@ from dqn import DQN
 import torch
 import torch.nn as nn
 from experience_replay import ReplayMemory
-
+import itertools
 
 
 if torch.backends.mps.is_available():
@@ -24,25 +24,36 @@ def run(self, is_training=True, render=False):
     
     state, _ = env.reset()
     
+    
     if is_training:
         memory = ReplayMemory(10000)
     
-    while True:
-        # Next action:
-        # (feed the observation to your agent here)
-        action = env.action_space.sample()
+    for episode in itertools.count():
+        state, _ = env.reset()
+        episode_rewards = 0
+        terminated = False
         
-        # Processing: terminated => done
-        next_state, reward, done, _, _ = env.step(action)
-        
-        if is_training:
-            memory.append((state, action, new_state, reward, done))
-        
-        # Checking if the player is still alive
-        if done:
-              break
+                
+        while not terminated:
+            # Next action:
+            # (feed the observation to your agent here)
+            action = env.action_space.sample()
+            
+            # Processing: terminated => done
+            next_state, reward, done, _, _ = env.step(action)
+            
+            if is_training:
+                memory.append((state, action, new_state, reward, done))
+            
+            state = new_state
+            episode_rewards += rewards
+            
+        print(f"episode={episode+1} with total reward={episode_rewards}")
+
+
+
           
-        env.close() 
+        #env.close() - maually stop 
                                                                 
                                                                    
                                                             
